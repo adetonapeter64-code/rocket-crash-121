@@ -1,0 +1,25 @@
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+const userId = Telegram.WebApp.initDataUnsafe.user?.id || 'test_user';
+
+function depositWithPaystack() {
+  const amount = document.getElementById('depAmount').value * 100; // kobo
+  let handler = PaystackPop.setup({
+    key: 'pk_test_YOUR_KEY', // <-- put your Paystack public key
+    email: document.getElementById('depEmail').value,
+    amount: amount,
+    currency: 'NGN',
+    callback: function(response) {
+      fetch('/api/verify-deposit', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ reference: response.reference, userId })
+      }).then(r=>r.json()).then(d=>{
+        alert('Deposit success! Balance: ₦' + d.balance);
+        location.reload();
+      });
+    }
+  });
+  handler.openIframe();
+}
+</script>
